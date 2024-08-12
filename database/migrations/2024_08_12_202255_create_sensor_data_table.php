@@ -11,11 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('devices', function (Blueprint $table) {
+        Schema::create('sensor_data', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->string('location');
+            $table->string('name')->unique();
+            $table->unsignedBigInteger('device_id')->unique();
+            $table->boolean('data');
+            $table->timestamp('recorded_at');
             $table->timestamps();
+            $table->foreign('device_id')->references('id')->on('devices')->onDelete('cascade');
         });
     }
 
@@ -24,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('devices');
+        Schema::dropIfExists('sensor_data');
     }
 };
