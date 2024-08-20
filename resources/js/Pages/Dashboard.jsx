@@ -2,7 +2,7 @@ import MQTTConnection from "@/Components/MQTTConnection";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { Head } from "@inertiajs/react";
 
-export default function Dashboard({ auth }) {
+export default function Dashboard({ auth, sensors }) {
   return (
     <AuthenticatedLayout
       user={auth.user}
