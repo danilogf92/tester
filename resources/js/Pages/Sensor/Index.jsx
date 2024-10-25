@@ -1,41 +1,35 @@
 import { useEffect, useState } from "react";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
-import { Head, usePage } from "@inertiajs/react";
+import { Head } from "@inertiajs/react";
 import ContainerComponent from "@/Components/ContainerComponent";
 
 export default function Index({ auth, sensors: initialSensors }) {
   const [sensors, setSensors] = useState(initialSensors);
 
+  const handleParkingStatusUpdate = (event) => {
+    console.log("Estado del estacionamiento actualizado:", event);
+
+    // Actualiza el estado de los sensores
+    setSensors((prevSensors) => {
+      return prevSensors.map((sensor) => {
+        // Verifica si el sensor necesita ser actualizado
+        if (sensor.id === event.parkingId) {
+          // Devuelve una copia del sensor con el nuevo estado `occupied`
+          return { ...sensor, occupied: event.occupied }; // Actualiza el atributo `occupied`
+        }
+        return sensor; // Retorna el sensor sin cambios
+      });
+    });
+  };
+
   useEffect(() => {
-    // Configura un intervalo que se ejecuta cada segundo
-    const interval = setInterval(() => {
-      // Realiza una solicitud para obtener los datos más recientes
-      fetch(route("sensors.index"), {
-        method: "GET",
-        headers: {
-          Accept: "application/json",
-        },
-      })
-        .then((response) => response.json())
-        .then((data) => {
-          // Compara los sensores actuales con los nuevos datos
-          const isEqual =
-            JSON.stringify(sensors) === JSON.stringify(data.sensors);
-
-          // Solo actualiza el estado si los datos son diferentes
-          if (!isEqual) {
-            console.log(data.sensors);
-            setSensors(data.sensors);
-          }
-        })
-        .catch((error) =>
-          console.error("Error al actualizar los sensores:", error)
-        );
-    }, 1000); // 1000 ms = 1 segundo
-
-    // Limpia el intervalo cuando el componente se desmonte
-    return () => clearInterval(interval);
-  }, [sensors]); // Agrega 'sensors' como dependencia para que useEffect reconozca los cambios
+    const parkingStatusListener = Echo.private("parking-status").listen(
+      "ParkingStatusUpdated",
+      (event) => {
+        handleParkingStatusUpdate(event); // Llama a la función aquí
+      }
+    );
+  }, []);
 
   return (
     <AuthenticatedLayout
@@ -48,9 +42,10 @@ export default function Index({ auth, sensors: initialSensors }) {
     >
       <Head title="Sensores" />
 
+      {/* ContainerComponent se re-renderizará automáticamente cuando `sensors` cambie */}
       <ContainerComponent data={sensors} user={auth.user} />
 
-      {/* <pre>{JSON.stringify(sensors, undefined, 2)}</pre> */}
+      <pre>{JSON.stringify(sensors, undefined, 2)}</pre>
     </AuthenticatedLayout>
   );
 }

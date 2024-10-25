@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Events\ParkingStatusUpdated;
 use App\Models\Data;
 use PhpMqtt\Client\MqttClient;
 use PhpMqtt\Client\ConnectionSettings;
@@ -64,8 +65,10 @@ class MQTTService
     protected function handleMessage($sensorId, $topic, $message)
     {
         try {
-            echo "Mensaje recibido en $topic: $message\n";
+            echo "Mensaje recibido en $topic: $message id= $sensorId\n";
             $this->updateSensorState($sensorId, $message);
+            $sensorData = json_decode($message, true);
+            broadcast(new ParkingStatusUpdated($sensorId, $sensorData['value']));
         } catch (\Exception $e) {
             Log::error("Error al manejar el mensaje del sensor $sensorId: " . $e->getMessage());
             echo "Error manejando mensaje: {$e->getMessage()}\n";
@@ -95,7 +98,7 @@ class MQTTService
                 $price = 100.00;
 
                 $createdData = Data::create([
-                    'user_id' => $sensor->user_id,
+                    'user_id' => $sensor->user_id ?? 1,
                     'timer_seconds' => $timerSeconds,
                     'price' => $price,
                     'sensor_id' => $sensor->id,

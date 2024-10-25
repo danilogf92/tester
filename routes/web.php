@@ -1,11 +1,17 @@
 <?php
 
+use App\Events\ParkingStatusUpdated;
 use App\Http\Controllers\DataController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SensorController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+
+
+Route::get('/broadcast', function () {
+    broadcast(new ParkingStatusUpdated(1,2));
+});
 
 Route::get('/', function () {
     return Inertia::render('Welcome', [
