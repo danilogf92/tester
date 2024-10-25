@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\SensorResource;
 use Illuminate\Http\Request;
 use App\Models\Sensor;
 
@@ -16,10 +17,9 @@ class SensorController extends Controller
 
         // Verificar si la solicitud espera una respuesta en formato JSON
         if (request()->wantsJson()) {
-            return response()->json(['sensors' => $sensors]);
+            return response()->json(['sensors' => SensorResource::collection($sensors)]);
         }
 
-        // Si no se espera JSON, retornar la vista habitual de Inertia.js
         return inertia('Sensor/Index', [
             "sensors" => $sensors
         ]);
@@ -62,8 +62,24 @@ class SensorController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        // Valida la solicitud, solo se valida el user_id
+        $request->validate([
+            'user_id' => 'nullable|exists:users,id',  // Asegúrate de que el user_id exista en la tabla de users
+        ]);
+
+        // Busca el sensor por ID
+        $sensor = Sensor::findOrFail($id);
+
+        // Actualiza solo el user_id
+        $sensor->update($request->only(['user_id']));
+
+        // Devuelve una respuesta (puedes ajustar esto según tus necesidades)
+        //return response()->json(['message' => 'Sensor updated successfully', 'sensor' => $sensor]);
+        
+
+        return redirect()->route('sensors.index')->with('success', 'Sensor updated successfully');
     }
+
 
     /**
      * Remove the specified resource from storage.

@@ -16,7 +16,7 @@ export default function Dashboard({ auth, sensors }) {
 
       <div className="py-4">
         <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
-          <MQTTConnection user={auth.user} />
+          <h2>DASHBOARD</h2>
         </div>
       </div>
     </AuthenticatedLayout>

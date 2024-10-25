@@ -5,7 +5,6 @@ import ContainerComponent from "@/Components/ContainerComponent";
 
 export default function Index({ auth, sensors: initialSensors }) {
   const [sensors, setSensors] = useState(initialSensors);
-  const { props } = usePage();
 
   useEffect(() => {
     // Configura un intervalo que se ejecuta cada segundo
@@ -48,7 +47,10 @@ export default function Index({ auth, sensors: initialSensors }) {
       }
     >
       <Head title="Sensores" />
-      <ContainerComponent data={sensors} />
+
+      <ContainerComponent data={sensors} user={auth.user} />
+
+      {/* <pre>{JSON.stringify(sensors, undefined, 2)}</pre> */}
     </AuthenticatedLayout>
   );
 }

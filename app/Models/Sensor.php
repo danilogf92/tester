@@ -10,8 +10,18 @@ class Sensor extends Model
     use HasFactory;
 
     protected $fillable = [
-        "occupied",
-        "start_time",
-        "end_time",
+        'name',
+        'occupied',
+        'start_time',
+        'end_time',
+        'user_id',
     ];
+
+    /**
+     * Relación con el modelo User.
+     */
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }

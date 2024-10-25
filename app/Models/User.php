@@ -44,4 +44,9 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    public function sensors()
+    {
+        return $this->hasMany(Sensor::class);
+    }
 }

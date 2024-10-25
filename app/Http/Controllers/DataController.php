@@ -40,6 +40,8 @@ class DataController extends Controller
 
         try {
             // Intentar crear el nuevo registro en la base de datos
+            // Data::create($validated);
+        
             Data::create($validated);
 
             // Redirigir a la página de índice con un mensaje de éxito

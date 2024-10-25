@@ -8,6 +8,7 @@ use PhpMqtt\Client\ConnectionSettings;
 use App\Models\Sensor;
 use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 
 class MQTTService
 {
@@ -15,103 +16,118 @@ class MQTTService
 
     public function __construct()
     {
-        $host = config('mqtt.host');
-        $port = config('mqtt.port');
-        $clientId = config('mqtt.client_id');
+        try {
+            $host = config('mqtt.host');
+            $port = config('mqtt.port');
+            $clientId = config('mqtt.client_id');
 
-        $connectionSettings = (new ConnectionSettings)
-            ->setUsername(config('mqtt.username'))
-            ->setPassword(config('mqtt.password'))
-            ->setKeepAliveInterval(60);
+            $connectionSettings = (new ConnectionSettings)
+                ->setUsername(config('mqtt.username'))
+                ->setPassword(config('mqtt.password'))
+                ->setKeepAliveInterval(60);
 
-        $this->client = new MqttClient($host, $port, $clientId);
-        $this->client->connect($connectionSettings, true);
+            $this->client = new MqttClient($host, $port, $clientId);
+            $this->client->connect($connectionSettings, true);
+        } catch (\Exception $e) {
+            Log::error('Error al conectar con MQTT: ' . $e->getMessage());
+            echo "Error al conectar con MQTT: {$e->getMessage()}\n";
+        }
     }
 
     public function listen()
     {
-        // Suscribirse a los tópicos de los sensores
-        $this->client->subscribe('esp32/sensor 1', function (string $topic, string $message) {
-            echo "Mensaje recibido en $topic: $message\n";  // Mensaje de depuración en consola
-            //Log::info("Mensaje recibido en $topic: $message");  // Mensaje de depuración en los logs
-            $this->updateSensorState(1, $message);
-        }, 0);
+        try {
+            // Suscribirse a los tópicos de los sensores
+            $this->client->subscribe('esp32/sensor 1', function (string $topic, string $message) {
+                $this->handleMessage(1, $topic, $message);
+            }, 0);
 
-        $this->client->subscribe('esp32/sensor 2', function (string $topic, string $message) {
-            echo "Mensaje recibido en $topic: $message\n";  // Mensaje de depuración en consola
-            //Log::info("Mensaje recibido en $topic: $message");  // Mensaje de depuración en los logs
-            $this->updateSensorState(2, $message);
-        }, 0);
+            $this->client->subscribe('esp32/sensor 2', function (string $topic, string $message) {
+                $this->handleMessage(2, $topic, $message);
+            }, 0);
 
-        $this->client->subscribe('esp32/sensor 3', function (string $topic, string $message) {
-            echo "Mensaje recibido en $topic: $message\n";  // Mensaje de depuración en consola
-            //Log::info("Mensaje recibido en $topic: $message");  // Mensaje de depuración en los logs
-            $this->updateSensorState(3, $message);
-        }, 0);
+            $this->client->subscribe('esp32/sensor 3', function (string $topic, string $message) {
+                $this->handleMessage(3, $topic, $message);
+            }, 0);
 
-        $this->client->subscribe('esp32/sensor 4', function (string $topic, string $message) {
-            echo "Mensaje recibido en $topic: $message\n";  // Mensaje de depuración en consola
-            //Log::info("Mensaje recibido en $topic: $message");  // Mensaje de depuración en los logs
-            $this->updateSensorState(4, $message);
-        }, 0);
+            $this->client->subscribe('esp32/sensor 4', function (string $topic, string $message) {
+                $this->handleMessage(4, $topic, $message);
+            }, 0);
 
-        $this->client->loop(true);
+            $this->client->loop(true);  // Iniciar bucle de escucha
+        } catch (\Exception $e) {
+            Log::error('Error al suscribirse o ejecutar el loop MQTT: ' . $e->getMessage());
+            echo "Error en el servicio MQTT: {$e->getMessage()}\n";
+        }
+    }
+
+    protected function handleMessage($sensorId, $topic, $message)
+    {
+        try {
+            echo "Mensaje recibido en $topic: $message\n";
+            $this->updateSensorState($sensorId, $message);
+        } catch (\Exception $e) {
+            Log::error("Error al manejar el mensaje del sensor $sensorId: " . $e->getMessage());
+            echo "Error manejando mensaje: {$e->getMessage()}\n";
+        }
     }
 
     protected function updateSensorState($sensorId, $message)
     {
-      //  echo "Sensor $sensorId y $message\n";
-        $sensorData = json_decode($message, true);
-        $sensor = Sensor::find($sensorId);
+        try {
+            $sensorData = json_decode($message, true);
+            $sensor = Sensor::find($sensorId);
+            $user = Auth::user();
 
-        if ($sensorData['value'] === 1 && !$sensor->occupied) {
-          
-            $sensor->update([
-                'occupied' => true,
-                'start_time' => now(),
-                'end_time' => null,
-            ]);
-            //Log::info("Sensor $sensorId actualizado a ocupado.");  // Depuración en logs
-        } elseif ($sensorData['value'] === 0 && $sensor->occupied) {
-            // $startTime = $sensor->start_time;
-            // $endTime = now();
-            // $timerSeconds = $endTime->diffInSeconds($startTime);
+            //dd($user);  // Para depuración, pero puede ser eliminado para producción
 
-            $startTime = Carbon::parse($sensor->start_time);  // Asegúrate de que start_time es un objeto Carbon
-            $endTime = Carbon::now();  // end_time como objeto Carbon
+            if ($sensorData['value'] === 1.00 && !$sensor->occupied) {
+                $sensor->update([
+                    'occupied' => true,
+                    'start_time' => now(),
+                    'end_time' => null,
+                    'user_id' => null
+                ]);
+            } elseif ($sensorData['value'] === 0.00 && $sensor->occupied) {
+                $startTime = Carbon::parse($sensor->start_time);
+                $endTime = Carbon::now();
+                $timerSeconds = $startTime->diffInSeconds($endTime);
+                $price = 100.00;
 
-            $timerSeconds = $startTime->diffInSeconds($endTime);
+                $createdData = Data::create([
+                    'user_id' => $sensor->user_id,
+                    'timer_seconds' => $timerSeconds,
+                    'price' => $price,
+                    'sensor_id' => $sensor->id,
+                    'start_time' => $startTime,
+                    'end_time' => $endTime,
+                ]);
 
-            // Aquí podrías calcular el precio basado en el tiempo, o usar un valor fijo
-            $price = 100.00; // Ejemplo: usa un precio fijo, o calcula basado en el tiempo
+                if ($createdData) {
+                    echo "Data creada correctamente.\n";
+                } else {
+                    echo "Fallo al crear la data.\n";
+                }
 
-            // Crear el registro en 'data'
-            $createdData = Data::create([
-                'user_id' => 1, // Asegúrate de usar el user_id correcto o extraerlo según tu lógica
-                'timer_seconds' => $timerSeconds,
-                'price' => $price,
-                'sensor_id' => $sensor->id,
-                'start_time' => $startTime,
-                'end_time' => $endTime,
-            ]);
- 
-            if ($createdData) {
-                echo "Data created successfully: ";
-            } else {
-                echo "Failed to create Data for sensor";
+                $sensor->update([
+                    'occupied' => false,
+                    'end_time' => now(),
+                ]);
+                echo "Sensor $sensorId actualizado a desocupado.\n";
             }
-
-            $sensor->update([
-                'occupied' => false,
-                'end_time' => now(),
-            ]);
-            echo "Sensor $sensorId actualizado a desocupado.\n";  // Depuración
-            //Log::info("Sensor $sensorId actualizado a desocupado.");  // Depuración en logs
+        } catch (\Exception $e) {
+            Log::error("Error al actualizar el estado del sensor $sensorId: " . $e->getMessage());
+            echo "Error actualizando estado del sensor: {$e->getMessage()}\n";
         }
     }
 
     public function __destruct()
     {
-        $this->client->disconnect();
+        try {
+            $this->client->disconnect();
+        } catch (\Exception $e) {
+            Log::warning('Error al desconectar el cliente MQTT: ' . $e->getMessage());
+            echo "Error al desconectar: {$e->getMessage()}\n";
+        }
     }
 }
