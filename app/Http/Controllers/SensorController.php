@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\ParkingAcceptedUser;
 use App\Http\Resources\SensorResource;
 use Illuminate\Http\Request;
 use App\Models\Sensor;
@@ -75,8 +76,7 @@ class SensorController extends Controller
 
         // Devuelve una respuesta (puedes ajustar esto según tus necesidades)
         //return response()->json(['message' => 'Sensor updated successfully', 'sensor' => $sensor]);
-        
-
+        broadcast(new ParkingAcceptedUser($sensor->id, $sensor->user_id, $sensor->occupied));
         return redirect()->route('sensors.index')->with('success', 'Sensor updated successfully');
     }
 

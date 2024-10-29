@@ -58,11 +58,11 @@ const CarItem = ({ item, user }) => {
             .toString()
             .padStart(2, "0")}`
         );
-      }, 100);
+      }, 1000);
 
       return () => clearInterval(interval);
     }
-  }, [item.occupied, item.start_time]);
+  }, [item.occupied, item.start_time, item]);
 
   const handleClick = async (e, item, user_id) => {
     e.preventDefault();
@@ -91,7 +91,7 @@ const CarItem = ({ item, user }) => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center bg-gray-200 border border-gray-300 rounded-md p-4 shadow-md shadow-gray-300">
+    <div className="flex flex-col items-center justify-center bg-gray-50 border border-gray-300 rounded-md p-4 shadow-md shadow-gray-300">
       <div className="text-lg font-bold mb-2">
         {status ? (
           <>

@@ -6,6 +6,22 @@ import ContainerComponent from "@/Components/ContainerComponent";
 export default function Index({ auth, sensors: initialSensors }) {
   const [sensors, setSensors] = useState(initialSensors);
 
+  const handleParkingAcceptedUpdate = (event) => {
+    console.log("Usuario Acepta transaccion:", event);
+
+    // Actualiza el estado de los sensores
+    setSensors((prevSensors) => {
+      return prevSensors.map((sensor) => {
+        // Verifica si el sensor necesita ser actualizado
+        if (sensor.id === event.parkingId) {
+          // Devuelve una copia del sensor con el nuevo estado `occupied`
+          return { ...sensor, user_id: event.userId }; // Actualiza el atributo `occupied`
+        }
+        return sensor; // Retorna el sensor sin cambios
+      });
+    });
+  };
+
   const handleParkingStatusUpdate = (event) => {
     console.log("Estado del estacionamiento actualizado:", event);
 
@@ -15,7 +31,11 @@ export default function Index({ auth, sensors: initialSensors }) {
         // Verifica si el sensor necesita ser actualizado
         if (sensor.id === event.parkingId) {
           // Devuelve una copia del sensor con el nuevo estado `occupied`
-          return { ...sensor, occupied: event.occupied }; // Actualiza el atributo `occupied`
+          return {
+            ...sensor,
+            occupied: event.occupied,
+            start_time: event.start_time,
+          }; // Actualiza el atributo `occupied`
         }
         return sensor; // Retorna el sensor sin cambios
       });
@@ -26,7 +46,14 @@ export default function Index({ auth, sensors: initialSensors }) {
     const parkingStatusListener = Echo.private("parking-status").listen(
       "ParkingStatusUpdated",
       (event) => {
-        handleParkingStatusUpdate(event); // Llama a la función aquí
+        handleParkingStatusUpdate(event);
+      }
+    );
+
+    const parkingAcceptedListener = Echo.private("parking-accepted").listen(
+      "ParkingAcceptedUser",
+      (event) => {
+        handleParkingAcceptedUpdate(event);
       }
     );
   }, []);

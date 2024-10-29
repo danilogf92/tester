@@ -10,3 +10,7 @@ use Illuminate\Support\Facades\Broadcast;
 Broadcast::channel('parking-status', function () {
     return true; // No se requiere ninguna lógica de autorización
 });
+
+Broadcast::channel('parking-accepted', function ($user) {
+    return true;
+});

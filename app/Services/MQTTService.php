@@ -67,8 +67,6 @@ class MQTTService
         try {
             echo "Mensaje recibido en $topic: $message id= $sensorId\n";
             $this->updateSensorState($sensorId, $message);
-            $sensorData = json_decode($message, true);
-            broadcast(new ParkingStatusUpdated($sensorId, $sensorData['value']));
         } catch (\Exception $e) {
             Log::error("Error al manejar el mensaje del sensor $sensorId: " . $e->getMessage());
             echo "Error manejando mensaje: {$e->getMessage()}\n";
@@ -91,6 +89,10 @@ class MQTTService
                     'end_time' => null,
                     'user_id' => null
                 ]);
+
+                $formattedStartTime = Carbon::parse($sensor->start_time)->format('Y-m-d H:i:s');
+
+                broadcast(new ParkingStatusUpdated($sensor->id, $sensor->occupied, $formattedStartTime));
             } elseif ($sensorData['value'] === 0.00 && $sensor->occupied) {
                 $startTime = Carbon::parse($sensor->start_time);
                 $endTime = Carbon::now();
@@ -108,6 +110,7 @@ class MQTTService
 
                 if ($createdData) {
                     echo "Data creada correctamente.\n";
+                    $sensorData = json_decode($message, true);
                 } else {
                     echo "Fallo al crear la data.\n";
                 }
@@ -116,6 +119,7 @@ class MQTTService
                     'occupied' => false,
                     'end_time' => now(),
                 ]);
+                broadcast(new ParkingStatusUpdated($sensor->id, $sensor->occupied, null));
                 echo "Sensor $sensorId actualizado a desocupado.\n";
             }
         } catch (\Exception $e) {

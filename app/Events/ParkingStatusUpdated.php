@@ -16,11 +16,13 @@ class ParkingStatusUpdated implements ShouldBroadcast
 
     public $parkingId;
     public $occupied;
+    public $start_time;
 
-    public function __construct($parkingId, $occupied)
+    public function __construct($parkingId, $occupied, $start_time)
     {
         $this->parkingId = $parkingId;
         $this->occupied = $occupied;
+        $this->start_time = $start_time;
     }
 
     public function broadcastOn()
