@@ -14,20 +14,29 @@ use Illuminate\Support\Facades\Auth;
 class MQTTService
 {
     protected $client;
+    protected $host;
+    protected $port;
+    protected $clientId;
 
     public function __construct()
     {
-        try {
-            $host = config('mqtt.host');
-            $port = config('mqtt.port');
-            $clientId = config('mqtt.client_id');
+        $this->host = config('mqtt.host');
+        $this->port = config('mqtt.port');
+        $this->clientId = config('mqtt.client_id');
 
+        $this->connect();
+    }
+
+    private function connect()
+    {
+        try {
             $connectionSettings = (new ConnectionSettings)
                 ->setUsername(config('mqtt.username'))
                 ->setPassword(config('mqtt.password'))
-                ->setKeepAliveInterval(60);
+                ->setKeepAliveInterval(10)  // Reduce el tiempo de keep alive a 10 segundos
+                ->setSocketTimeout(10);      // Aumenta el tiempo de espera del socket
 
-            $this->client = new MqttClient($host, $port, $clientId);
+            $this->client = new MqttClient($this->host, $this->port, $this->clientId);
             $this->client->connect($connectionSettings, true);
         } catch (\Exception $e) {
             Log::error('Error al conectar con MQTT: ' . $e->getMessage());
@@ -37,29 +46,41 @@ class MQTTService
 
     public function listen()
     {
-        try {
-            // Suscribirse a los tópicos de los sensores
-            $this->client->subscribe('esp32/sensor 1', function (string $topic, string $message) {
-                $this->handleMessage(1, $topic, $message);
-            }, 0);
+        while (true) {
+            try {
+                $this->subscribeToTopics();
 
-            $this->client->subscribe('esp32/sensor 2', function (string $topic, string $message) {
-                $this->handleMessage(2, $topic, $message);
-            }, 0);
+                // Iniciar el bucle de escucha
+                $this->client->loop(true, 5);  // Escucha con 5 segundos de intervalo de loop
+            } catch (\Exception $e) {
+                Log::error('Error en el servicio MQTT: ' . $e->getMessage());
+                echo "Error en el servicio MQTT: {$e->getMessage()}\n";
 
-            $this->client->subscribe('esp32/sensor 3', function (string $topic, string $message) {
-                $this->handleMessage(3, $topic, $message);
-            }, 0);
-
-            $this->client->subscribe('esp32/sensor 4', function (string $topic, string $message) {
-                $this->handleMessage(4, $topic, $message);
-            }, 0);
-
-            $this->client->loop(true);  // Iniciar bucle de escucha
-        } catch (\Exception $e) {
-            Log::error('Error al suscribirse o ejecutar el loop MQTT: ' . $e->getMessage());
-            echo "Error en el servicio MQTT: {$e->getMessage()}\n";
+                // Intentar reconectar después de un tiempo de espera
+                sleep(2);
+                $this->connect();
+            }
         }
+    }
+
+    protected function subscribeToTopics()
+    {
+        // Suscribirse a los tópicos de los sensores
+        $this->client->subscribe('esp32/sensor 1', function (string $topic, string $message) {
+            $this->handleMessage(1, $topic, $message);
+        }, 0);
+
+        $this->client->subscribe('esp32/sensor 2', function (string $topic, string $message) {
+            $this->handleMessage(2, $topic, $message);
+        }, 0);
+
+        $this->client->subscribe('esp32/sensor 3', function (string $topic, string $message) {
+            $this->handleMessage(3, $topic, $message);
+        }, 0);
+
+        $this->client->subscribe('esp32/sensor 4', function (string $topic, string $message) {
+            $this->handleMessage(4, $topic, $message);
+        }, 0);
     }
 
     protected function handleMessage($sensorId, $topic, $message)
@@ -80,8 +101,6 @@ class MQTTService
             $sensor = Sensor::find($sensorId);
             $user = Auth::user();
 
-            //dd($user);  // Para depuración, pero puede ser eliminado para producción
-
             if ($sensorData['value'] === 1.00 && !$sensor->occupied) {
                 $sensor->update([
                     'occupied' => true,
@@ -91,7 +110,6 @@ class MQTTService
                 ]);
 
                 $formattedStartTime = Carbon::parse($sensor->start_time)->format('Y-m-d H:i:s');
-
                 broadcast(new ParkingStatusUpdated($sensor->id, $sensor->occupied, $formattedStartTime));
             } elseif ($sensorData['value'] === 0.00 && $sensor->occupied) {
                 $startTime = Carbon::parse($sensor->start_time);
@@ -107,13 +125,6 @@ class MQTTService
                     'start_time' => $startTime,
                     'end_time' => $endTime,
                 ]);
-
-                if ($createdData) {
-                    echo "Data creada correctamente.\n";
-                    $sensorData = json_decode($message, true);
-                } else {
-                    echo "Fallo al crear la data.\n";
-                }
 
                 $sensor->update([
                     'occupied' => false,
