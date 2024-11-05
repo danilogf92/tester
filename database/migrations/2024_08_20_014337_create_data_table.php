@@ -13,16 +13,17 @@ return new class extends Migration
     {
         Schema::create('data', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('user_id'); 
-            $table->float('timer_seconds'); 
-            $table->decimal('price', 10, 2); 
-            $table->unsignedBigInteger('sensor_id');
+            $table->unsignedBigInteger('user_id');
+            $table->float('timer_seconds');
+            $table->decimal('price', 10, 2);
+            $table->unsignedBigInteger('sensor_id'); // Añadimos sensor_id como columna no comentada
             $table->timestamp('start_time')->nullable();
             $table->timestamp('end_time')->nullable();
             $table->timestamps();
 
-            // Si tienes una tabla de usuarios, añade la clave foránea
+            // Definimos claves foráneas con opciones de eliminación en cascada
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            $table->foreign('sensor_id')->references('id')->on('sensors')->onDelete('cascade');
         });
     }
 

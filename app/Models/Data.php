@@ -16,10 +16,15 @@ class Data extends Model
         'sensor_id',
         'start_time',
         'end_time',
-    ];    
+    ];
 
     public function user()
     {
         return $this->belongsTo(User::class);
-    }    
+    }
+
+    public function sensor()
+    {
+        return $this->belongsTo(Sensor::class);
+    }
 }

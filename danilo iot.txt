@@ -1,3 +1,26 @@
 php artisan mqtt:listen
-php artisan queue:work 
+php artisan queue:work
 php artisan reverb:start --debug
+php artisan reverb:start --port=8081 --debug
+php artisan queue:work --queue=default,emails,notifications
+php artisan queue:work --queue=mqtt
+
+
+composer require filament/filament
+php artisan filament:install --panels
+php artisan make:filament-user
+php artisan make:filament-resource Sensor --generate
+php artisan make:filament-resource Data --generate
+php artisan make:filament-resource User --generate
+
+
+
+
+DATA
+    protected static ?string $navigationIcon = 'heroicon-o-clipboard';
+
+    protected static ?string $navigationGroup = 'Water consumption managment';
+
+    protected static ?int $navigationSort = 4;
+
+
