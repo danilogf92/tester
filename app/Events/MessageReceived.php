@@ -9,23 +9,22 @@ use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
 
-class ParkingAcceptedUser implements ShouldBroadcast
+class MessageReceived implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public $parkingId;
-    public $userId;
-    public $ocupped;
+    public $topic;
+    public $value;
 
     /**
      * Create a new event instance.
      */
-    public function __construct($parkingId, $userId, $ocupped)
+    public function __construct($topic, $value)
     {
-        $this->parkingId = $parkingId;
-        $this->userId = $userId;
-        $this->ocupped = $ocupped;
+        $this->topic = $topic;
+        $this->value = $value;
     }
 
     /**
@@ -36,7 +35,7 @@ class ParkingAcceptedUser implements ShouldBroadcast
     public function broadcastOn(): array
     {
         return [
-            new PrivateChannel('parking-accepted'),
+            new Channel('mqtt-messages')
         ];
     }
 }

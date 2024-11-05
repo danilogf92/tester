@@ -4,75 +4,101 @@ import { Head } from "@inertiajs/react";
 import ContainerComponent from "@/Components/ContainerComponent";
 
 export default function Index({ auth, sensors: initialSensors }) {
-  const [sensors, setSensors] = useState(initialSensors);
+    const [sensors, setSensors] = useState(initialSensors);
 
-  const handleParkingAcceptedUpdate = (event) => {
-    console.log("Usuario Acepta transaccion:", event);
+    const handleParkingAcceptedUpdate = (event) => {
+        console.log("Usuario Acepta transaccion:", event);
 
-    // Actualiza el estado de los sensores
-    setSensors((prevSensors) => {
-      return prevSensors.map((sensor) => {
-        // Verifica si el sensor necesita ser actualizado
-        if (sensor.id === event.parkingId) {
-          // Devuelve una copia del sensor con el nuevo estado `occupied`
-          return { ...sensor, user_id: event.userId }; // Actualiza el atributo `occupied`
-        }
-        return sensor; // Retorna el sensor sin cambios
-      });
-    });
-  };
+        // Actualiza el estado de los sensores
+        setSensors((prevSensors) => {
+            return prevSensors.map((sensor) => {
+                // Verifica si el sensor necesita ser actualizado
+                if (sensor.id === event.parkingId) {
+                    // Devuelve una copia del sensor con el nuevo estado `occupied`
+                    return { ...sensor, user_id: event.userId }; // Actualiza el atributo `occupied`
+                }
+                return sensor; // Retorna el sensor sin cambios
+            });
+        });
+    };
 
-  const handleParkingStatusUpdate = (event) => {
-    console.log("Estado del estacionamiento actualizado:", event);
+    const handleParkingStatusUpdate = (event) => {
+        console.log("Estado del estacionamiento actualizado:", event);
 
-    // Actualiza el estado de los sensores
-    setSensors((prevSensors) => {
-      return prevSensors.map((sensor) => {
-        // Verifica si el sensor necesita ser actualizado
-        if (sensor.id === event.parkingId) {
-          // Devuelve una copia del sensor con el nuevo estado `occupied`
-          return {
-            ...sensor,
-            occupied: event.occupied,
-            start_time: event.start_time,
-          }; // Actualiza el atributo `occupied`
-        }
-        return sensor; // Retorna el sensor sin cambios
-      });
-    });
-  };
+        // Actualiza el estado de los sensores
+        setSensors((prevSensors) => {
+            return prevSensors.map((sensor) => {
+                // Verifica si el sensor necesita ser actualizado
+                if (sensor.id === event.parkingId) {
+                    // Devuelve una copia del sensor con el nuevo estado `occupied`
+                    return {
+                        ...sensor,
+                        occupied: event.occupied,
+                        start_time: event.start_time,
+                    }; // Actualiza el atributo `occupied`
+                }
+                return sensor; // Retorna el sensor sin cambios
+            });
+        });
+    };
 
-  useEffect(() => {
-    const parkingStatusListener = Echo.private("parking-status").listen(
-      "ParkingStatusUpdated",
-      (event) => {
-        handleParkingStatusUpdate(event);
-      }
+    useEffect(() => {
+        const parkingStatusListener = Echo.private("parking-status").listen(
+            "ParkingStatusUpdated",
+            (event) => {
+                handleParkingStatusUpdate(event);
+            }
+        );
+
+        const parkingAcceptedListener = Echo.private("parking-accepted").listen(
+            "ParkingAcceptedUser",
+            (event) => {
+                handleParkingAcceptedUpdate(event);
+            }
+        );
+
+        const sensorUpdated = Echo.channel("mqtt-messages").listen(
+            "MessageReceived",
+            (event) => {
+                const topic = event.topic;
+
+                try {
+                    const parsedValue = JSON.parse(event.value);
+
+                    if (parsedValue.value !== undefined) {
+                        console.log("Topic:", topic);
+                        console.log("Value:", parsedValue.value);
+                    } else {
+                        console.log("Value is undefined in parsed value.");
+                    }
+                } catch (e) {
+                    console.error("Error parsing event.value:", e);
+                }
+            }
+        );
+
+        // Función de limpieza para eliminar los listeners
+        return () => {
+            Echo.leave("parking-status");
+            Echo.leave("parking-accepted");
+            Echo.leave("mqtt-messages");
+        };
+    }, []);
+
+    return (
+        <AuthenticatedLayout
+            user={auth.user}
+            header={
+                <h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
+                    Sensores
+                </h2>
+            }
+        >
+            <Head title="Sensores" />
+
+            <ContainerComponent data={sensors} user={auth.user} />
+
+            {/* <pre>{JSON.stringify(sensors, undefined, 2)}</pre> */}
+        </AuthenticatedLayout>
     );
-
-    const parkingAcceptedListener = Echo.private("parking-accepted").listen(
-      "ParkingAcceptedUser",
-      (event) => {
-        handleParkingAcceptedUpdate(event);
-      }
-    );
-  }, []);
-
-  return (
-    <AuthenticatedLayout
-      user={auth.user}
-      header={
-        <h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-          Sensores
-        </h2>
-      }
-    >
-      <Head title="Sensores" />
-
-      {/* ContainerComponent se re-renderizará automáticamente cuando `sensors` cambie */}
-      <ContainerComponent data={sensors} user={auth.user} />
-
-      <pre>{JSON.stringify(sensors, undefined, 2)}</pre>
-    </AuthenticatedLayout>
-  );
 }

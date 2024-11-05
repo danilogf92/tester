@@ -3,9 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Events\ParkingAcceptedUser;
+use App\Events\ParkingStatusUpdated;
 use App\Http\Resources\SensorResource;
+use App\Models\Data;
 use Illuminate\Http\Request;
 use App\Models\Sensor;
+use Carbon\Carbon;
 
 class SensorController extends Controller
 {
@@ -87,5 +90,51 @@ class SensorController extends Controller
     public function destroy(string $id)
     {
         //
+    }
+
+    public function updateByName(Request $request, string $name)
+    {
+        // Busca el sensor por nombre
+        $sensor = Sensor::where('name', $name)->firstOrFail();
+
+        if (($request->input('occupied') === 1.0 || $request->input('occupied') === 1) && $sensor->occupied === 0) {
+            $sensor->update([
+                'occupied' => $request->input('occupied'),
+                'start_time' => now(),
+                'end_time' => null,
+                'user_id' => null,
+            ]);
+            broadcast(new ParkingStatusUpdated($sensor->id, $sensor->occupied, $sensor->start_time));
+        }
+
+        if (($request->input('occupied') === 0.0 || $request->input('occupied') === 0) && $sensor->occupied === 1) {
+            $sensor->update([
+                'occupied' => $request->input('occupied'),
+                'end_time' => now(),
+                'user_id' => null,
+            ]);
+
+            $start_time = Carbon::parse($sensor->start_time); // Convierte start_time a un objeto Carbon
+            $end_time = Carbon::parse(now()); // Convierte end_time (ahora) a un objeto Carbon
+
+            $timer_seconds = $start_time->diffInSeconds($end_time);
+
+            // Crear un nuevo registro en la tabla Data
+            Data::create([
+                'user_id' => $sensor->user_id ?? 1,
+                'sensor_id' => $sensor->id,
+                'start_time' => $sensor->start_time,
+                'end_time' => now(),
+                'timer_seconds' => $timer_seconds,
+                'price' => 10,
+            ]);
+
+            broadcast(new ParkingStatusUpdated($sensor->id, $sensor->occupied, $sensor->start_time));
+        }
+
+        // Emite un evento después de actualizar el sensor
+        // broadcast(new ParkingAcceptedUser($sensor->id, $sensor->user_id, $sensor->occupied));
+
+        return redirect()->route('sensors.index')->with('success', 'Sensor updated successfully');
     }
 }

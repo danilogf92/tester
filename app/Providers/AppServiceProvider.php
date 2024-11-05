@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Jobs\MqttSubscriberJob;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -19,6 +20,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        MqttSubscriberJob::dispatch()->onQueue('mqtt');
     }
 }
