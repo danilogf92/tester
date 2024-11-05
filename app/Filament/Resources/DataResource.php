@@ -17,7 +17,7 @@ class DataResource extends Resource
 {
     protected static ?string $model = Data::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-clipboard';
+    protected static ?string $navigationIcon = 'heroicon-o-circle-stack';
 
     protected static ?string $navigationLabel = 'Datos';
 

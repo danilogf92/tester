@@ -3,6 +3,7 @@
 use App\Events\ParkingStatusUpdated;
 use App\Http\Controllers\DataController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ReservationController;
 use App\Http\Controllers\SensorController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -24,6 +25,7 @@ Route::get('/dashboard', function () {
 Route::middleware(['auth'])->group(function () {
     Route::resource('/sensors', SensorController::class);
     Route::resource('/data', DataController::class);
+    Route::resource('/reservations', ReservationController::class);
 });
 
 
@@ -33,4 +35,4 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';

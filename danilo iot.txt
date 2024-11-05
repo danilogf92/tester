@@ -1,10 +1,12 @@
-php artisan mqtt:listen
-php artisan queue:work
-php artisan reverb:start --debug
+php artisan serve
+npm run dev
 php artisan reverb:start --port=8081 --debug
 php artisan queue:work --queue=default,emails,notifications
 php artisan queue:work --queue=mqtt
-
+php artisan queue:work --queue=delete-reservations
+php artisan queue:work --queue=active-reservations
+php artisan queue:work --queue=mqtt
+php artisan queue:work --queue=default,emails,notifications
 
 composer require filament/filament
 php artisan filament:install --panels
@@ -12,6 +14,7 @@ php artisan make:filament-user
 php artisan make:filament-resource Sensor --generate
 php artisan make:filament-resource Data --generate
 php artisan make:filament-resource User --generate
+php artisan make:filament-resource Reservation --generate
 
 
 
