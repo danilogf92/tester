@@ -13,8 +13,8 @@ class ReservationResource extends JsonResource
         return [
             'id' => $this->id,
             'user_name' => $this->user->name,
-            'reservation_date' => (new Carbon($this->reservation_date))->format('Y-m-d'),
-            'reservation_time' => (new Carbon($this->reservation_time))->format('H:i:s'),
+            'reservation_date' => (new Carbon($this->date))->format('Y-m-d'),
+            'reservation_time' => (new Carbon($this->time))->format('H:i:s'),
             // 'reservation_duration' => (new Carbon($this->time_reservation))->format('H:i:s'),
             'reservation_duration' => $this->time_reservation,
             'reservation_parking' => $this->sensor->name,

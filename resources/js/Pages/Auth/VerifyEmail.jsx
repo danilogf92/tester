@@ -1,6 +1,6 @@
-import GuestLayout from '@/Layouts/GuestLayout';
-import PrimaryButton from '@/Components/PrimaryButton';
-import { Head, Link, useForm } from '@inertiajs/react';
+import GuestLayout from "@/Layouts/GuestLayout";
+import PrimaryButton from "@/Components/PrimaryButton";
+import { Head, Link, useForm } from "@inertiajs/react";
 
 export default function VerifyEmail({ status }) {
     const { post, processing } = useForm({});
@@ -8,35 +8,41 @@ export default function VerifyEmail({ status }) {
     const submit = (e) => {
         e.preventDefault();
 
-        post(route('verification.send'));
+        post(route("verification.send"));
     };
 
     return (
         <GuestLayout>
-            <Head title="Email Verification" />
+            <Head title="Verificación de correo electrónico" />
 
             <div className="mb-4 text-sm text-gray-600 dark:text-gray-400">
-                Thanks for signing up! Before getting started, could you verify your email address by clicking on the
-                link we just emailed to you? If you didn't receive the email, we will gladly send you another.
+                ¡Gracias por registrarte! Antes de comenzar, ¿podrías verificar
+                tu dirección de correo electrónico haciendo clic en el enlace
+                que acabamos de enviarte por correo? Si no recibiste el correo,
+                con gusto te enviaremos otro.
             </div>
 
-            {status === 'verification-link-sent' && (
+            {status === "verification-link-sent" && (
                 <div className="mb-4 font-medium text-sm text-green-600 dark:text-green-400">
-                    A new verification link has been sent to the email address you provided during registration.
+                    Se ha enviado un nuevo enlace de verificación a la dirección
+                    de correo electrónico que proporcionaste durante el
+                    registro.
                 </div>
             )}
 
             <form onSubmit={submit}>
                 <div className="mt-4 flex items-center justify-between">
-                    <PrimaryButton disabled={processing}>Resend Verification Email</PrimaryButton>
+                    <PrimaryButton disabled={processing}>
+                        Reenviar correo de verificación
+                    </PrimaryButton>
 
                     <Link
-                        href={route('logout')}
+                        href={route("logout")}
                         method="post"
                         as="button"
                         className="underline text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800"
                     >
-                        Log Out
+                        Cerrar sesión
                     </Link>
                 </div>
             </form>

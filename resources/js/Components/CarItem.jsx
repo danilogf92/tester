@@ -97,43 +97,48 @@ const CarItem = ({ item, user }) => {
             <div className="text-lg font-bold mb-2">
                 {status ? (
                     <>
-                        <h4 className="bg-red-200 shadow-sm rounded-sm p-2 text-center">
-                            {`Parqueadero ${item.id} Ocupado`}
+                        <h4 className="bg-red-200 shadow-sm rounded-md p-2 text-center">
+                            {`Estacionamiento # ${item.id} Ocupado`}
                         </h4>
-                        <h5>{`Inicio: ${new Date(
+                        <h5 className="text-sm">{`Inicio: ${new Date(
                             item.start_time
                         ).toLocaleString("es-ES", {
                             timeZone: "America/Guayaquil",
-                        })} Tiempo: ${tiempoTranscurrido}`}</h5>
+                        })} | Tiempo: ${tiempoTranscurrido}`}</h5>
                     </>
                 ) : (
-                    <h4 className="bg-green-200 shadow-sm rounded-sm p-2">{`Parqueadero ${item.id} Libre`}</h4>
+                    <h4 className="bg-green-200 shadow-sm rounded-sm p-2 text-gray-500">
+                        {`Estacionamiento # ${item.id} Libre`}
+                    </h4>
                 )}
             </div>
-
-            <div>
+            <div className="flex flex-col items-center">
                 <img
                     src={status ? `/img/auto-1.png` : `/img/libre.png`}
                     alt={status ? "CarImg" : "LibreImg"}
-                    className="h-32 sm:h-32 w-full object-contain"
+                    className="h-24 sm:h-24 w-full object-contain mb-4"
                 />
 
-                <div className="flex space-x-4">
-                    {/* {!item.user && item.occupied ? ( */}
-                    {item.occupied &&
-                        (item.user_id ? (
-                            <h5>Usuario: {item.user_id}</h5>
-                        ) : (
-                            <button
-                                onClick={(e) => handleClick(e, item, user.id)}
-                                className="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded"
-                            >
-                                Aceptar Cargo
-                            </button>
-                        ))}
-                </div>
+                {/* Mostrar usuario si está ocupado */}
+                {item.occupied === 1 && item.user_id !== null && (
+                    <div className="flex space-x-4 mb-4">
+                        <h5>Usuario #: {item.user_id}</h5>
+                    </div>
+                )}
+
+                {/* Botón para aceptar cargo si está ocupado y no tiene usuario asignado */}
+                {item.occupied === 1 && item.user_id === null && (
+                    <div className="flex space-x-4">
+                        <button
+                            onClick={(e) => handleClick(e, item, user.id)}
+                            className="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded"
+                        >
+                            Aceptar Cargo
+                        </button>
+                    </div>
+                )}
             </div>
-            {/* <pre>{JSON.stringify(item, undefined, 2)}</pre> */}
+            {/* <pre>{JSON.stringify(item, undefined, 2)}</pre>  */}
         </div>
     );
 };

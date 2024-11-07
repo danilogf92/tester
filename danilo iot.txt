@@ -6,7 +6,8 @@ php artisan queue:work --queue=mqtt
 php artisan queue:work --queue=delete-reservations
 php artisan queue:work --queue=active-reservations
 php artisan queue:work --queue=mqtt
-php artisan queue:work --queue=default,emails,notifications
+php artisan queue:work --queue=reservations
+
 
 composer require filament/filament
 php artisan filament:install --panels

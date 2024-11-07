@@ -32,6 +32,9 @@ export const FormReservation = ({ sensors, user }) => {
 
     useEffect(() => {
         const now = new Date();
+        now.setHours(0, 0, 0, 0);
+        now.setDate(now.getDate());
+
         setMinDate(now.toISOString().split("T")[0]);
 
         const hours = now.getHours().toString().padStart(2, "0");
