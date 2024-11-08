@@ -70,9 +70,7 @@ class ReservationController extends Controller
         $deactivationTime = $activationTime->copy()->addMinutes($timeReservationMinutes);
 
         ActivateReservationJob::dispatch($reservation)->delay($activationTime)->onQueue('reservations');
-        // ActivateReservationJob::dispatch($reservation)->delay(1)->onQueue('active-reservations');
         DeactivateReservationJob::dispatch($reservation)->delay($deactivationTime)->onQueue('reservations');
-        // DeactivateReservationJob::dispatch($reservation)->delay(2)->onQueue('delete-reservations');
 
         return redirect()->route('reservations.index')->with('success', 'Reserva creada y programada con éxito.');
     }
@@ -82,7 +80,6 @@ class ReservationController extends Controller
      */
     public function show($id)
     {
-        // Buscar la reserva por ID
         $reservation = Reservation::findOrFail($id);
 
         return response()->json($reservation);

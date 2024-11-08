@@ -18,3 +18,7 @@ Broadcast::channel('parking-accepted', function ($user) {
 Broadcast::channel('mqtt-messages', function ($user) {
     return true;
 });
+
+Broadcast::channel('reservation', function ($user) {
+    return true;
+});

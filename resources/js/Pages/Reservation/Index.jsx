@@ -1,7 +1,7 @@
 import { NoContent } from "@/Components/myComponents/NoContent";
 import Pagination from "@/Components/myComponents/Pagination";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Head, Link, router, usePage } from "@inertiajs/react";
 import Modal from "@/Components/Modal";
 
@@ -12,18 +12,18 @@ export default function Index({
     queryParams = null,
 }) {
     queryParams = queryParams || {};
-    const { flash } = usePage().props;
-    const [showSuccess, setShowSuccess] = useState(false);
     const [filters, setFilters] = useState({
         date: queryParams.date || "",
         sensor_id: queryParams.sensor_id || "",
         rows: queryParams.rows || 5,
     });
+    const [forceRender, setForceRender] = useState(false);
+    const [reservationsData, setReservationsData] = useState(reservations.data);
 
     const deleteReservation = (reservation) => {
         router.delete(route("reservations.destroy", reservation.id), {
             onSuccess: (response) => {
-                console.log(response); // AQUI GENERA EL showSuccess
+                // console.log(response); // AQUI GENERA EL showSuccess
             },
             onError: (errors) => {
                 // console.log(errors);
@@ -74,6 +74,29 @@ export default function Index({
             }
         );
     };
+
+    useEffect(() => {
+        const reservationUpdated = Echo.channel("reservation").listen(
+            "ReservationActivation",
+            (event) => {
+                setReservationsData((prevReservations) => {
+                    return prevReservations.map((reservation) => {
+                        if (reservation.id === event.reservation.id) {
+                            return {
+                                ...reservation,
+                                status: event.reservation.status,
+                            };
+                        }
+                        return reservation;
+                    });
+                });
+            }
+        );
+
+        return () => {
+            Echo.leave("reservation");
+        };
+    }, []);
 
     return (
         <AuthenticatedLayout
@@ -178,8 +201,7 @@ export default function Index({
                                     </div>
                                 </div>
                             </div>
-
-                            {reservations.data.length > 0 && (
+                            {reservationsData.length > 0 && (
                                 <>
                                     <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400 bg-red-50 rounded-lg">
                                         <thead className="text-xs text-gray-700 uppercase  dark:bg-gray-700 dark:text-gray-400 border-b-2 border-gray-500 rounded-lg">
@@ -231,13 +253,13 @@ export default function Index({
                                                     scope="col"
                                                     className="px-6 py-3"
                                                 >
-                                                    Actions
+                                                    Acciones
                                                 </th>
                                             </tr>
                                         </thead>
 
                                         <tbody>
-                                            {reservations.data.map(
+                                            {reservationsData.map(
                                                 (reservations, index) => (
                                                     <tr
                                                         key={reservations.id}
@@ -263,13 +285,13 @@ export default function Index({
                                                         <td
                                                             className={`px-6 py-2 ${
                                                                 reservations.status ===
-                                                                "pending"
+                                                                "pendiente"
                                                                     ? "bg-yellow-200"
                                                                     : reservations.status ===
-                                                                      "active"
+                                                                      "activa"
                                                                     ? "bg-green-200"
                                                                     : reservations.status ===
-                                                                      "inactive"
+                                                                      "inactiva"
                                                                     ? "bg-rose-200"
                                                                     : ""
                                                             }`}
@@ -296,7 +318,7 @@ export default function Index({
                                                         </td>
 
                                                         <td className="py-2 text-center">
-                                                            <Link
+                                                            {/* <Link
                                                                 className="font-medium text-amber-600 dark:text-amber-500 hover:underline mr-4"
                                                                 href={route(
                                                                     "reservations.edit",
@@ -304,7 +326,7 @@ export default function Index({
                                                                 )}
                                                             >
                                                                 Edit
-                                                            </Link>
+                                                            </Link> */}
                                                             <button
                                                                 className="font-medium text-red-600 dark:text-red-500 hover:underline"
                                                                 onClick={() => {
@@ -378,8 +400,10 @@ export default function Index({
                         </div>
                         {/* <pre>
                             {JSON.stringify(reservations.data, undefined, 2)}
-                        </pre> */}
-                        {/* <pre>{JSON.stringify(auth, undefined, 2)}</pre> */}
+                        </pre>
+                        <pre>
+                            {JSON.stringify(reservationsData, undefined, 2)}
+                        </pre>*/}
                     </div>
                 </div>
             </div>

@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useForm } from "@inertiajs/react";
+import ReservationList from "./myComponents/ReservationList";
 
-const CarItem = ({ item, user }) => {
+const CarItem = ({ item, user, reservations }) => {
+    const [reservation, setReservation] = useState();
     const [tiempoTranscurrido, setTiempoTranscurrido] = useState("");
     const { data, setData, put, errors } = useForm({
         user_id: user.id,
@@ -92,6 +94,21 @@ const CarItem = ({ item, user }) => {
         );
     };
 
+    useEffect(() => {
+        const filteredReservations = reservations.filter(
+            (reservation) => reservation.sensor_id === item.id
+        );
+
+        // Actualiza el estado con las reservas filtradas
+        setReservation((prevReservation) => {
+            // Aquí puedes decidir cómo actualizar el estado, si quieres reemplazar el valor anterior o hacer una modificación
+            return filteredReservations; // Aquí estamos simplemente reemplazando el estado con las reservas filtradas
+        });
+
+        // Otras acciones si es necesario
+        console.log(filteredReservations);
+    }, [reservations, item.id]);
+
     return (
         <div className="flex flex-col items-center justify-center bg-gray-50 border border-gray-300 rounded-md p-4 shadow-md shadow-gray-300">
             <div className="text-lg font-bold mb-2">
@@ -138,7 +155,8 @@ const CarItem = ({ item, user }) => {
                     </div>
                 )}
             </div>
-            {/* <pre>{JSON.stringify(item, undefined, 2)}</pre>  */}
+            {/* <pre>{JSON.stringify(reservation, undefined, 2)}</pre> */}
+            <ReservationList reservations={reservation} />
         </div>
     );
 };

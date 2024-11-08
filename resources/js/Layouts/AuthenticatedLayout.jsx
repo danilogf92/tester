@@ -39,7 +39,7 @@ export default function Authenticated({ user, header, children }) {
                                         route().current("sensors.edit")
                                     }
                                 >
-                                    Parqueadero
+                                    Estacionamiento
                                 </NavLink>
                             </div>
 
@@ -171,7 +171,7 @@ export default function Authenticated({ user, header, children }) {
                                 route().current("sensors.edit")
                             }
                         >
-                            Parqueadero
+                            Estacionamiento
                         </ResponsiveNavLink>
                     </div>
 

@@ -24,7 +24,7 @@ export const FormReservation = ({ sensors, user }) => {
                     time: "",
                     time_reservation: "",
                 });
-                console.log(response);
+                // console.log(response);
             },
             onError: (errors) => {},
         });

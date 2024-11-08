@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Events\ReservationActivation;
 use App\Models\Reservation;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -22,7 +23,8 @@ class DeactivateReservationJob implements ShouldQueue
 
     public function handle()
     {
-        // Desactivar la reserva
-        $this->reservation->update(['status' => 'inactive']);
+        $value = 'inactiva';
+        $this->reservation->update(['status' => $value]);
+        broadcast(new ReservationActivation($this->reservation));
     }
 }

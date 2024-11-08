@@ -3,8 +3,13 @@ import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { Head } from "@inertiajs/react";
 import ContainerComponent from "@/Components/ContainerComponent";
 
-export default function Index({ auth, sensors: initialSensors }) {
+export default function Index({
+    auth,
+    sensors: initialSensors,
+    reservations: initialReservations,
+}) {
     const [sensors, setSensors] = useState(initialSensors);
+    const [reservations, setReservations] = useState(initialReservations);
 
     const handleParkingAcceptedUpdate = (event) => {
         console.log("Usuario Acepta transaccion:", event);
@@ -39,6 +44,28 @@ export default function Index({ auth, sensors: initialSensors }) {
                 }
                 return sensor; // Retorna el sensor sin cambios
             });
+        });
+    };
+
+    const handleReservationsUpdate = (newReservation) => {
+        setReservations((prevReservations) => {
+            if (newReservation.status === "inactiva") {
+                return prevReservations.filter(
+                    (reservation) => reservation.id !== newReservation.id
+                );
+            }
+
+            if (newReservation.status === "activa") {
+                const existingReservation = prevReservations.find(
+                    (reservation) => reservation.id === newReservation.id
+                );
+
+                if (!existingReservation) {
+                    return [...prevReservations, newReservation];
+                }
+            }
+
+            return prevReservations;
         });
     };
 
@@ -77,11 +104,20 @@ export default function Index({ auth, sensors: initialSensors }) {
             }
         );
 
+        const reservationUpdated = Echo.channel("reservation").listen(
+            "ReservationActivation",
+            (event) => {
+                console.log(event.reservation);
+                handleReservationsUpdate(event.reservation);
+            }
+        );
+
         // Función de limpieza para eliminar los listeners
         return () => {
             Echo.leave("parking-status");
             Echo.leave("parking-accepted");
             Echo.leave("mqtt-messages");
+            Echo.leave("reservation");
         };
     }, []);
 
@@ -96,8 +132,14 @@ export default function Index({ auth, sensors: initialSensors }) {
         >
             <Head title="Sensores" />
 
-            <ContainerComponent data={sensors} user={auth.user} />
+            <ContainerComponent
+                data={sensors}
+                user={auth.user}
+                reservations={reservations}
+            />
 
+            {/* <pre>{JSON.stringify(sensors, undefined, 2)}</pre> */}
+            {/* <pre>{JSON.stringify(reservations, undefined, 2)}</pre> */}
             {/* <pre>{JSON.stringify(sensors, undefined, 2)}</pre> */}
         </AuthenticatedLayout>
     );

@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('reservations', function (Blueprint $table) {
             $table->id();
-            $table->string('status')->default('pending');
+            $table->string('status')->default('pendiente');
             $table->date('date');
             $table->time('time');
             $table->float('time_reservation');

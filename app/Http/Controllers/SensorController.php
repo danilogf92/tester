@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Events\ParkingAcceptedUser;
 use App\Events\ParkingStatusUpdated;
+use App\Http\Resources\ReservationResource;
 use App\Http\Resources\SensorResource;
 use App\Models\Data;
+use App\Models\Reservation;
 use Illuminate\Http\Request;
 use App\Models\Sensor;
 use Carbon\Carbon;
@@ -18,16 +20,22 @@ class SensorController extends Controller
     public function index()
     {
         $sensors = Sensor::all();
+        $reservations = Reservation::where('status', 'activa')->get();
 
-        // Verificar si la solicitud espera una respuesta en formato JSON
-        if (request()->wantsJson()) {
-            return response()->json(['sensors' => SensorResource::collection($sensors)]);
-        }
+        // // Verificar si la solicitud espera una respuesta en formato JSON
+        // if (request()->wantsJson()) {
+        //     return response()->json([
+        //         'sensors' => SensorResource::collection($sensors),
+        //         'reservations' => ReservationResource::collection($reservations),
+        //     ]);
+        // }
 
         return inertia('Sensor/Index', [
-            "sensors" => $sensors
+            'sensors' => $sensors,
+            'reservations' => $reservations,
         ]);
     }
+
 
     /**
      * Show the form for creating a new resource.

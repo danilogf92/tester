@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Events\ReservationActivation;
 use App\Models\Reservation;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -25,11 +26,9 @@ class ActivateReservationJob implements ShouldQueue
 
     public function handle()
     {
-        // Activar la reserva
-        $this->reservation->update(['status' => 'active']);
+        $value = 'activa';
 
-        // // Programar el job de desactivación para después de la duración de la reserva
-        // $deactivationTime = now()->addMinutes($this->reservation->duration_minutes);
-        // DeactivateReservationJob::dispatch($this->reservation)->delay($deactivationTime);
+        $this->reservation->update(['status' => $value]);
+        broadcast(new ReservationActivation($this->reservation));
     }
 }
