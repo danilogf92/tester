@@ -1,12 +1,9 @@
 php artisan serve
 npm run dev
 php artisan reverb:start --port=8081 --debug
-php artisan queue:work --queue=default,emails,notifications
 php artisan queue:work --queue=mqtt
-php artisan queue:work --queue=delete-reservations
-php artisan queue:work --queue=active-reservations
-php artisan queue:work --queue=mqtt
-php artisan queue:work --queue=reservations
+php artisan queue:work --queue=default,emails,notifications,reservations
+
 
 
 composer require filament/filament
@@ -26,5 +23,4 @@ DATA
     protected static ?string $navigationGroup = 'Water consumption managment';
 
     protected static ?int $navigationSort = 4;
-
 

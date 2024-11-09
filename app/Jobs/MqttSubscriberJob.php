@@ -15,6 +15,7 @@ use App\Events\MessageReceived;
 use App\Http\Controllers\SensorController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use PhpMqtt\Client\Facades\MQTT;
 
 class MqttSubscriberJob implements ShouldQueue
 {
@@ -33,33 +34,13 @@ class MqttSubscriberJob implements ShouldQueue
      */
     public function handle(): void
     {
-        $host = config('mqtt.host');
-        $port = config('mqtt.port');
-        $clientId = config('mqtt.client_id');
-
-        $connectionSettings = (new ConnectionSettings)
-            ->setUsername(config('mqtt.username'))
-            ->setPassword(config('mqtt.password'))
-            ->setKeepAliveInterval(60)
-            ->setLastWillTopic('esp32/last-will')
-            ->setLastWillMessage('client disconnect')
-            ->setReconnectAutomatically(true)
-            ->setLastWillQualityOfService(0);
-
-        $mqtt = new MqttClient($host, $port, $clientId);
-
         try {
-            Log::info('Connecting to MQTT Broker...');
-            $mqtt->connect($connectionSettings, false);
-            Log::info('Connected to MQTT Broker.');
+            $mqtt = MQTT::connection();
 
-            // Suscribirse al tema
-            $mqtt->subscribe('esp32/#', function (string $topic, string $message) {
-                Log::info("Received message on '$topic': $message");
-
+            $mqtt->subscribe('esp32/#', function (string $topic, string $message) use ($mqtt) {
+                Log::info("Received message on topic '$topic': $message");
                 try {
-                    // $sensorName = $topic;  // O extraerlo desde el $message si es necesario
-                    $occupied = $message; // Ejemplo: convierte el mensaje a un booleano
+                    $occupied = $message;
 
                     $sensorName = Str::after($topic, 'esp32/');
 
@@ -67,11 +48,8 @@ class MqttSubscriberJob implements ShouldQueue
                         $message,
                         true
                     );
-
-                    // Accede al valor de "value"
                     $value = isset($data['value']) ? $data['value'] : null;
 
-                    // Llama al controlador para actualizar el valor del sensor
                     $sensorController = app(SensorController::class);
                     $sensorController->updateByName(new Request(['occupied' => $value]), $sensorName);
 
@@ -79,16 +57,14 @@ class MqttSubscriberJob implements ShouldQueue
                 } catch (\Exception $e) {
                     Log::error("Failed to broadcast event: " . $e->getMessage());
                 }
-                // $mqtt->interrupt();
+                $mqtt->interrupt();
             }, MqttClient::QOS_AT_MOST_ONCE);
 
-            $mqtt->loop();
+            $mqtt->loop(true);
+
             $mqtt->disconnect();
         } catch (MqttClientException $e) {
             Log::error("An error occurred while subscribing to MQTT topic: " . $e->getMessage());
-        } finally {
-            $mqtt->disconnect();
-            Log::info('Disconnected from MQTT Broker.');
         }
     }
 }
