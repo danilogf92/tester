@@ -28,28 +28,28 @@ class DataController extends Controller
      */
     public function store(Request $request)
     {
-        // Validar la solicitud
-        $validated = $request->validate([
-            'user_id' => 'required|exists:users,id',
-            'timer_seconds' => 'required|numeric',
-            'price' => 'required|numeric',
-            'sensor_id' => 'required|numeric',
-            'start_time' => 'required|date',
-            'end_time' => 'required|date',
-        ]);
+        // // Validar la solicitud
+        // $validated = $request->validate([
+        //     'user_id' => 'required|exists:users,id',
+        //     'timer_seconds' => 'required|numeric',
+        //     'price' => 'required|numeric',
+        //     'sensor_id' => 'required|numeric',
+        //     'start_time' => 'required|date',
+        //     'end_time' => 'required|date',
+        // ]);
 
-        try {
-            // Intentar crear el nuevo registro en la base de datos
-            // Data::create($validated);
-        
-            Data::create($validated);
+        // try {
+        //     // Intentar crear el nuevo registro en la base de datos
+        //     // Data::create($validated);
 
-            // Redirigir a la página de índice con un mensaje de éxito
-            return redirect()->route('sensors.index');
-        } catch (\Exception $e) {
-            // Manejar el error y redirigir de nuevo con un mensaje de error
-            return redirect()->route('sensors.index')->with('error', 'Failed to store data');
-        }
+        //     Data::create($validated);
+
+        //     // Redirigir a la página de índice con un mensaje de éxito
+        //     return redirect()->route('sensors.index');
+        // } catch (\Exception $e) {
+        //     // Manejar el error y redirigir de nuevo con un mensaje de error
+        //     return redirect()->route('sensors.index')->with('error', 'Failed to store data');
+        // }
     }
 
     /**

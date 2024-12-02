@@ -5,6 +5,8 @@ import { useEffect, useState } from "react";
 import { Head, Link, router, usePage } from "@inertiajs/react";
 import Modal from "@/Components/Modal";
 
+const ROWS = 10;
+
 export default function Index({
     auth,
     sensors,
@@ -15,7 +17,7 @@ export default function Index({
     const [filters, setFilters] = useState({
         date: queryParams.date || "",
         sensor_id: queryParams.sensor_id || "",
-        rows: queryParams.rows || 5,
+        rows: queryParams.rows || ROWS,
     });
     const [forceRender, setForceRender] = useState(false);
     const [reservationsData, setReservationsData] = useState(reservations.data);
@@ -45,7 +47,7 @@ export default function Index({
         setFilters({
             date: "",
             sensor_id: "",
-            rows: 5,
+            rows: ROWS,
         });
 
         // Hacer la solicitud a la ruta de índice de medidas usando los filtros actualizados
@@ -183,7 +185,6 @@ export default function Index({
                                             onChange={handleFilterChange}
                                             className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                                         >
-                                            <option value="5">5</option>
                                             <option value="10">10</option>
                                             <option value="20">20</option>
                                             <option value="50">50</option>
@@ -253,6 +254,13 @@ export default function Index({
                                                     scope="col"
                                                     className="px-6 py-3"
                                                 >
+                                                    Costo
+                                                </th>
+
+                                                <th
+                                                    scope="col"
+                                                    className="px-6 py-3"
+                                                >
                                                     Acciones
                                                 </th>
                                             </tr>
@@ -311,10 +319,15 @@ export default function Index({
                                                                 reservations.reservation_time
                                                             }
                                                         </td>
+
                                                         <td>
                                                             {
                                                                 reservations.reservation_duration
                                                             }
+                                                        </td>
+
+                                                        <td>
+                                                            {reservations.cost}
                                                         </td>
 
                                                         <td className="py-2 text-center">
@@ -398,7 +411,7 @@ export default function Index({
                                 />
                             )}
                         </div>
-                        {/* <pre>
+                        {/*<pre>
                             {JSON.stringify(reservations.data, undefined, 2)}
                         </pre>
                         <pre>

@@ -22,11 +22,11 @@ class StoreReservationRequest extends FormRequest
     public function rules()
     {
         return [
-            'user_id' => 'required|exists:users,id', // Asegúrate de que el usuario exista
-            'sensor_id' => 'required|exists:sensors,id', // Asegúrate de que el sensor exista
-            'date' => 'required|date|after_or_equal:today', // La fecha debe ser hoy o futura
-            'time' => 'required|date_format:H:i', // El formato de la hora debe ser correcto
-            'time_reservation' => 'required|in:1,5,15,30,45,60,75,90', // Asegúrate de que el tiempo de reserva esté entre las opciones permitidas
+            'user_id' => 'required|exists:users,id',
+            'sensor_id' => 'required|exists:sensors,id',
+            'date' => 'required|date|after_or_equal:today',
+            'time' => 'required|date_format:H:i',
+            'time_reservation' => 'required|in:1,5,15,30,45,60,75,90',
         ];
     }
 

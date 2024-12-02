@@ -17,7 +17,7 @@ return new class extends Migration
             $table->date('date');
             $table->time('time');
             $table->float('time_reservation');
-            $table->string('job_id')->nullable();
+            $table->decimal('cost', 10, 2);
             $table->unsignedBigInteger('sensor_id');
             $table->foreign('sensor_id')->references('id')->on('sensors')->onDelete('cascade');
 

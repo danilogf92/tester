@@ -40,6 +40,7 @@ export default function Index({
                         ...sensor,
                         occupied: event.occupied,
                         start_time: event.start_time,
+                        user_id: null,
                     }; // Actualiza el atributo `occupied`
                 }
                 return sensor; // Retorna el sensor sin cambios

@@ -6,6 +6,7 @@ use App\Http\Requests\StoreReservationRequest;
 use App\Http\Resources\ReservationResource;
 use App\Jobs\ActivateReservationJob;
 use App\Jobs\DeactivateReservationJob;
+use App\Models\Price;
 use App\Models\Reservation;
 use App\Models\Sensor;
 use Illuminate\Http\Request;
@@ -32,7 +33,7 @@ class ReservationController extends Controller
         if ($request->has('rows') && $request->rows) {
             $rowsPerPage = $request->input('rows', $request->rows);
         } else {
-            $rowsPerPage = $request->input('rows', 5);
+            $rowsPerPage = $request->input('rows', 10);
         }
 
         if ($rowsPerPage === 'all') {
@@ -60,6 +61,11 @@ class ReservationController extends Controller
     public function store(StoreReservationRequest $request)
     {
         $reservationData = $request->validated();
+
+
+        $costPerMinute = Price::first()->value ?? 1;
+
+        $reservationData['cost'] = (float) $reservationData['time_reservation'] * $costPerMinute;
 
         $reservation = Reservation::create($reservationData);
 

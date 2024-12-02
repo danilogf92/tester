@@ -16,7 +16,7 @@ class Reservation extends Model
         'time_reservation',
         'sensor_id',
         'user_id',
-        'job_id'
+        'cost'
     ];
 
     /**

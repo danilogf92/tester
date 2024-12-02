@@ -7,6 +7,7 @@ use App\Events\ParkingStatusUpdated;
 use App\Http\Resources\ReservationResource;
 use App\Http\Resources\SensorResource;
 use App\Models\Data;
+use App\Models\Price;
 use App\Models\Reservation;
 use Illuminate\Http\Request;
 use App\Models\Sensor;
@@ -21,14 +22,6 @@ class SensorController extends Controller
     {
         $sensors = Sensor::all();
         $reservations = Reservation::where('status', 'activa')->get();
-
-        // // Verificar si la solicitud espera una respuesta en formato JSON
-        // if (request()->wantsJson()) {
-        //     return response()->json([
-        //         'sensors' => SensorResource::collection($sensors),
-        //         'reservations' => ReservationResource::collection($reservations),
-        //     ]);
-        // }
 
         return inertia('Sensor/Index', [
             'sensors' => $sensors,
@@ -127,6 +120,10 @@ class SensorController extends Controller
 
             $timer_seconds = $start_time->diffInSeconds($end_time);
 
+            $costPerMinute = Price::first()->value ?? 1;
+
+            $price = (float) $timer_seconds * ($costPerMinute / 60);
+
             // Crear un nuevo registro en la tabla Data
             Data::create([
                 'user_id' => $sensor->user_id ?? 1,
@@ -134,7 +131,7 @@ class SensorController extends Controller
                 'start_time' => $sensor->start_time,
                 'end_time' => now(),
                 'timer_seconds' => $timer_seconds,
-                'price' => 10,
+                'price' => $price,
             ]);
 
             broadcast(new ParkingStatusUpdated($sensor->id, $sensor->occupied, $sensor->start_time));

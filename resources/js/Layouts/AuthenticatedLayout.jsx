@@ -221,6 +221,18 @@ export default function Authenticated({ user, header, children }) {
                 </header>
             )}
             <main>{children}</main>
+
+            <footer className="py-16 text-center text-sm text-black dark:text-white/70">
+                © {new Date().getFullYear()}{" "}
+                <a
+                    target="_blank"
+                    href="https://www.unl.edu.ec"
+                    className="text-gray-500 hover:underline"
+                >
+                    David Manzanrez UNL
+                </a>
+                . Todos los derechos reservados.
+            </footer>
         </div>
     );
 }

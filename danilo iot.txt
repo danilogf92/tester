@@ -13,7 +13,7 @@ php artisan make:filament-resource Sensor --generate
 php artisan make:filament-resource Data --generate
 php artisan make:filament-resource User --generate
 php artisan make:filament-resource Reservation --generate
-
+php artisan make:filament-resource Price --generate
 
 
 
@@ -23,4 +23,11 @@ DATA
     protected static ?string $navigationGroup = 'Water consumption managment';
 
     protected static ?int $navigationSort = 4;
+
+
+
+
+
+
+
 
