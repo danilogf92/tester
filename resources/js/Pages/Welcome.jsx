@@ -71,17 +71,18 @@ export default function Bienvenido({ auth }) {
                                         <ChartBarSquareIcon className="w-10 text-blue-600" />
                                         <div>
                                             <h2 className="text-xl font-semibold">
-                                                Estadísticas
+                                                Monitoreo de Espacios
                                             </h2>
                                             <p className="text-sm text-gray-600 dark:text-gray-300">
-                                                Consulta las estadísticas de
-                                                ocupación y flujo diario del
-                                                parqueadero.
+                                                Visualiza en tiempo real el
+                                                estado de cada espacio: hora de
+                                                ocupación, tiempo transcurrido y
+                                                disponibilidad.
                                             </p>
                                         </div>
                                     </div>
 
-                                    <div className="flex items-center gap-4 p-6 bg-white rounded-lg shadow-md dark:bg-gray-800">
+                                    {/* <div className="flex items-center gap-4 p-6 bg-white rounded-lg shadow-md dark:bg-gray-800">
                                         <ArrowTrendingUpIcon className="w-10 text-green-600" />
                                         <div>
                                             <h2 className="text-xl font-semibold">
@@ -92,17 +93,18 @@ export default function Bienvenido({ auth }) {
                                                 tiempos de estancia y más.
                                             </p>
                                         </div>
-                                    </div>
+                                    </div> */}
 
                                     <div className="flex items-center gap-4 p-6 bg-white rounded-lg shadow-md dark:bg-gray-800">
                                         <ClipboardDocumentListIcon className="w-10 text-yellow-600" />
                                         <div>
                                             <h2 className="text-xl font-semibold">
-                                                Gestión de Vehículos
+                                                Reservas
                                             </h2>
                                             <p className="text-sm text-gray-600 dark:text-gray-300">
-                                                Registra entradas y salidas en
-                                                tiempo real.
+                                                Reserva tu espacio de
+                                                estacionamiento con anticipación
+                                                y garantiza tu lugar.
                                             </p>
                                         </div>
                                     </div>
@@ -111,11 +113,13 @@ export default function Bienvenido({ auth }) {
                                         <CpuChipIcon className="w-10 text-purple-600" />
                                         <div>
                                             <h2 className="text-xl font-semibold">
-                                                Automatización
+                                                Disponibilidad
                                             </h2>
                                             <p className="text-sm text-gray-600 dark:text-gray-300">
-                                                Implementa sistemas automáticos
-                                                para mejorar la eficiencia.
+                                                Consulta en tiempo real el
+                                                estado de los espacios de
+                                                estacionamiento
+                                                (libres/ocupados).
                                             </p>
                                         </div>
                                     </div>

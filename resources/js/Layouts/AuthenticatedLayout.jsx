@@ -229,7 +229,7 @@ export default function Authenticated({ user, header, children }) {
                     href="https://www.unl.edu.ec"
                     className="text-gray-500 hover:underline"
                 >
-                    David Manzanrez UNL
+                    David Santiago Manzanares Romero UNL
                 </a>
                 . Todos los derechos reservados.
             </footer>
