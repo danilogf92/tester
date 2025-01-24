@@ -20,6 +20,10 @@ const ReservationList = ({ reservations }) => {
                     <p>
                         <strong>Tiempo de reserva: </strong>
                         {reservation.time_reservation} minutos
+                        <span>
+                            {" "}
+                            <strong>{reservation.cost} $</strong>
+                        </span>
                     </p>
                     <p>
                         <strong>Usuario #: </strong>
@@ -27,6 +31,8 @@ const ReservationList = ({ reservations }) => {
                     </p>
                 </div>
             ))}
+
+            {/* <pre>{JSON.stringify(reservations, undefined, 2)}</pre> */}
         </div>
     );
 };

@@ -2,8 +2,14 @@ import React, { useEffect, useState } from "react";
 import { useForm } from "@inertiajs/react";
 import ReservationList from "./myComponents/ReservationList";
 
-const CarItem = ({ item, user, reservations }) => {
+function calculatePriceMinutes(hours, minutes, seconds, price) {
+    const totalMinutes = hours * 60 + minutes + seconds / 60;
+    return (totalMinutes * price).toFixed(2);
+}
+
+const CarItem = ({ item, user, reservations, price }) => {
     const [reservation, setReservation] = useState();
+    const [diferenciaTiempo, setDiferenciaTiempo] = useState(0);
     const [tiempoTranscurrido, setTiempoTranscurrido] = useState("");
     const { data, setData, put, errors } = useForm({
         user_id: user.id,
@@ -62,6 +68,14 @@ const CarItem = ({ item, user, reservations }) => {
                         .toString()
                         .padStart(2, "0")}`
                 );
+
+                const priceDerived = calculatePriceMinutes(
+                    horasTranscurridas,
+                    minutosTranscurridos,
+                    segundosTranscurridos,
+                    price
+                );
+                setDiferenciaTiempo(priceDerived);
             }, 1000);
 
             return () => clearInterval(interval);
@@ -106,22 +120,29 @@ const CarItem = ({ item, user, reservations }) => {
         });
 
         // Otras acciones si es necesario
-        console.log(filteredReservations);
+        // console.log(filteredReservations);
     }, [reservations, item.id]);
 
     return (
-        <div className="flex flex-col items-center justify-center bg-gray-50 border border-gray-300 rounded-md p-4 shadow-md shadow-gray-300">
+        <div className="flex flex-col items-center justify-center bg-gray-50 border border-gray-300 rounded-md pb-2 shadow-md shadow-gray-300">
             <div className="text-lg font-bold mb-2">
                 {status ? (
                     <>
                         <h4 className="bg-red-200 shadow-sm rounded-md p-2 text-center">
                             {`Estacionamiento # ${item.id} Ocupado`}
                         </h4>
+                        <h6 className="bg-gray-200 shadow-sm rounded-md p-2 text-center">
+                            {`Valor por minuto: ${price} $.`}
+                        </h6>
+
                         <h5 className="text-sm">{`Inicio: ${new Date(
                             item.start_time
                         ).toLocaleString("es-ES", {
                             timeZone: "America/Guayaquil",
                         })} | Tiempo: ${tiempoTranscurrido}`}</h5>
+                        <h6 className="text-sm">
+                            {`Costo ${diferenciaTiempo} $`}
+                        </h6>
                     </>
                 ) : (
                     <h4 className="bg-green-200 shadow-sm rounded-sm p-2 text-gray-500">

@@ -22,10 +22,12 @@ class SensorController extends Controller
     {
         $sensors = Sensor::all();
         $reservations = Reservation::where('status', 'activa')->get();
+        $price = Price::find(1);
 
         return inertia('Sensor/Index', [
             'sensors' => $sensors,
             'reservations' => $reservations,
+            'price' => $price ?? 1,
         ]);
     }
 
@@ -126,7 +128,7 @@ class SensorController extends Controller
 
             // Crear un nuevo registro en la tabla Data
             Data::create([
-                'user_id' => $sensor->user_id ?? 1,
+                'user_id' => $sensor->user_id ?? 4,
                 'sensor_id' => $sensor->id,
                 'start_time' => $sensor->start_time,
                 'end_time' => now(),
