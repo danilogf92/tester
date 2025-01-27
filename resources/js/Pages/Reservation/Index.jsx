@@ -147,7 +147,7 @@ export default function Index({
                                             htmlFor="sensor_id"
                                             className="block text-sm font-medium text-gray-700"
                                         >
-                                            sensor
+                                            Parqueadero
                                         </label>
                                         <select
                                             name="sensor_id"
@@ -157,7 +157,7 @@ export default function Index({
                                             className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                                         >
                                             <option value="">
-                                                Select sensor
+                                                Seleccione parqueadero
                                             </option>
                                             {sensors.map((sensor) => (
                                                 <option
