@@ -19,7 +19,6 @@ export default function Index({
         sensor_id: queryParams.sensor_id || "",
         rows: queryParams.rows || ROWS,
     });
-    const [forceRender, setForceRender] = useState(false);
     const [reservationsData, setReservationsData] = useState(reservations.data);
 
     const deleteReservation = (reservation) => {

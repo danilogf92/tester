@@ -60,7 +60,7 @@ class DataResource extends Resource
                     ->numeric()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('timer_seconds')
-                    ->label('Tiempo en segundos')
+                    ->label('Tiempo (s)')
                     ->numeric()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('price')
@@ -68,7 +68,7 @@ class DataResource extends Resource
                     ->money()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('sensor.name')
-                    ->label('Tiempo en segundos')
+                    ->label('Parqueadero #')
                     ->numeric()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('start_time')

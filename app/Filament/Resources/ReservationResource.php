@@ -71,17 +71,17 @@ class ReservationResource extends Resource
                     ->sortable(),
                 Tables\Columns\TextColumn::make('time')->label('Hora'),
                 Tables\Columns\TextColumn::make('time_reservation')
-                    ->label('Tiempo de reserva')
+                    ->label('Tiempo de reserva (min)')
                     ->numeric()
                     ->sortable(),
                 // Tables\Columns\TextColumn::make('job_id')
                 //     ->searchable(),
                 Tables\Columns\TextColumn::make('sensor.name')
-                    ->label('Sensor')
+                    ->label('Parqueadero')
                     ->numeric()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('user.name')
-                    ->label('usuario')
+                    ->label('Usuario')
                     ->numeric()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
@@ -98,6 +98,7 @@ class ReservationResource extends Resource
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

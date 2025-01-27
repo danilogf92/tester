@@ -19,7 +19,7 @@ class SensorResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-presentation-chart-line';
 
-    protected static ?string $navigationLabel = 'Sensores';
+    protected static ?string $navigationLabel = 'Plazas';
 
     protected static ?string $navigationGroup = 'Parqueadero';
 
