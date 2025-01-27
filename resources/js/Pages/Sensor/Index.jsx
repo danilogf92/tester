@@ -141,7 +141,7 @@ export default function Index({
                 price={price.value}
             />
 
-            {/* <pre>{JSON.stringify(price, undefined, 2)}</pre> */}
+            {/* <pre>{JSON.stringify(sensors, undefined, 2)}</pre> */}
         </AuthenticatedLayout>
     );
 }

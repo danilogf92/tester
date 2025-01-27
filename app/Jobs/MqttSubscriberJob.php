@@ -42,7 +42,7 @@ class MqttSubscriberJob implements ShouldQueue
                 try {
                     $occupied = $message;
 
-                    $sensorName = Str::after($topic, 'esp32/');
+                    $sensorName = trim(Str::after($topic, 'esp32/'));
 
                     $data = json_decode(
                         $message,
@@ -53,12 +53,14 @@ class MqttSubscriberJob implements ShouldQueue
                     $sensorController = app(SensorController::class);
                     $sensorController->updateByName(new Request(['occupied' => $value]), $sensorName);
 
+                    Log::warning("Received message on topic '$topic': $message");
+
                     broadcast(new MessageReceived($topic, $message));
                 } catch (\Exception $e) {
                     Log::error("Failed to broadcast event: " . $e->getMessage());
                 }
                 $mqtt->interrupt();
-            }, MqttClient::QOS_AT_MOST_ONCE);
+            }, MqttClient::QOS_EXACTLY_ONCE);
 
             $mqtt->loop(true);
 

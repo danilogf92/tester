@@ -128,7 +128,7 @@ class SensorController extends Controller
 
             // Crear un nuevo registro en la tabla Data
             Data::create([
-                'user_id' => $sensor->user_id ?? 4,
+                'user_id' => $sensor->user_id ?? 1,
                 'sensor_id' => $sensor->id,
                 'start_time' => $sensor->start_time,
                 'end_time' => now(),
